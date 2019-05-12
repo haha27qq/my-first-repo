@@ -1,0 +1,390 @@
+---
+title: "H24064030_HW10"
+author: "周義興"
+date: "2019/5/12"
+---
+
+   * [Ｒ的基本結構與資料格式](#41)
+   * [Calculating with R](#42)
+   * [if、else](#43)
+   * [迴圈](#44)
+   * [basic statistic](#45)
+   * [基本資料視覺化](#46)
+   
+<h3 id="41">Ｒ的基本結構與資料格式</h3>
+
+>向量是 R 最基本的物件, R 沒有純量 (scaler) 資料型態, 其最小的資料型態是向量 (vector)  
+>所有其他資料物件 (matrix, factor, array, list, data.frame 等) 都是用向量構建的.  
+  
+Examples:
+```{r}
+5    #純量 5 在 R 中是單一元素的向量
+length(5)  #查詢向量長度 (元素個數)
+
+5[1]   #索引 1 就是資料本身
+
+5[2]    #索引 2 無值=NA
+
+```
+  
+>建立向量的第一個方法是利用冒號運算子來產生間隔為 1 的向量  
+>例如 1:50 表示含有元素 1~50 的整數向量 :
+```{r}
+1:50
+```
+
+>建立向量的第二個方法是用 `seq()` 函數.  
+>冒號 ":" 運算子只能產生間隔為 1 的向量,  
+>若要產生規則間隔的數值序列可使用內建的 `seq()` 函數.  
+>**`seq()` **主要有 4 個參數 :  
+>**from : 起值  **  
+>**to : 終值  **  
+>**by : 增量值 (負為減量值)  **  
+>**length : 元素個數  **  
+>其中前三個參數若不指明固定為 to , from 與 by, 其餘必須指明.  
+>參數 from 為起值, to 為終值, by 則為增量值, length 為向量長度 (即元素個數)  
+>其中 by 預設值為 1, 例如 :
+```{r}
+seq(from=1,to=10,by=2)         #1~10 的奇數
+
+seq(from=2,to=10,by=2)         #2~10 的偶數
+
+seq(1,10,2)    #不指明時預設參數為 to, from, by
+
+seq(from=-5,to=5)  #by 預設值為 1
+
+seq(from=-5,to=5,length=11)  #11 個元素  (相當於 by=1)
+
+seq(from=-5,to=5,length=5)    #元素長度 5 個
+
+seq(from=5,to=-5,by=-1)         #倒序時 by 需為負數
+
+```
+
+>R 還有一個重複函數 `rep()` 常用於產生向量物件,  
+>`rep()` 除了要重複的向量當第一參數外, 主要有下面 3 個參數 :  
+>times : 重複次數, 若不指明此為預設第二參數 (預設值為 1)  
+>length 或 length.out : 重複後之向量元素個數  
+>each : 每個元素重複次數 (each 須大於 0)  
+>其中 times 為預設之第二參數可以不指明, 例如 :  
+```{r}
+names <- c("花甲","雅婷", "阿瑋") #指定一向量
+rep(names)     #預設重複 1 次
+
+rep(names, 3)   #重複 3 次
+
+rep(names, length=3)    #重複後向量長度為 3
+
+rep(names, length=5)   #重複後向量長度為 5
+
+rep(names, 2, 2)   #重複 2 次, 但重複後向量長度為 2
+
+rep(names, 2)      #重複 2 次
+
+rep(names, 2, each=2)  #整個向量重複 2 次, 重複時每個元素重複 2 次
+
+rep(names, 2, each=0)  #重複次數須大於 0
+
+```
+
+>不過 each 參數只能以固定次數重複每個元素, 如果要指定各元素的重複次數該怎麼做?  
+>這時可傳入整數向量的 times 參數來達成, 但要注意 times  
+>向量元素個數須與被重複之向量元素個數相等, 否則會執行錯誤, 例如 :  
+
+```{r}
+rep(c(4,5,6), c(1,2,3))  #參數 times 為向量
+rep(c("花甲","雅婷","阿瑋"), c(1,2,3))     #參數 times 為向量
+#rep(1:5, 1:4)  #參數 times 少一個元素  #ERROR
+rep(1:5, 1:5)  #參數 times 元素個數剛剛好
+#rep(1:5, 1:6)  #參數 times 多一個元素
+
+```
+
+>**簡單整理**
+ 
+函數                        | 說明
+----------------------------|----------------------------
+`c(x1, x2, ...)`	          |將向量或純量組合成新的向量
+`seq(from, to, by, length)` |以起始值 from, 終值 to, 間隔 length 建立向量
+`rep(x, times)`	            |將向量 x 重複 times 次組合成新的向量
+
+>**物件結構查詢**
+
+函數              |說明
+------------------|------------------
+`str(x)`	        |顯示物件結構與內容
+`length(x)`	      |計算向量長度
+`dim(x)`	        |顯示物件的維度
+`class(x)`	      |顯示物件類型
+`storage.mode(x)`	|顯示物件之儲存模式
+
+>**其他常見資料類型補充**
+```{r}
+matrix(c(1:6), nrow=3, ncol=2) #建立3x2的矩陣，分別填入1~6的值
+StuDF=data.frame(StuID=c(1,2,3,4,5),name=c("小明","大雄","胖虎","小新","大白"),score=c(80,60,90,70,50))
+StuDF
+colnames(StuDF) #欄位名稱
+rownames(StuDF) #列名
+str(StuDF) #檢查個欄位之資料型別
+```
+
+
+<h3 id="42">Calculating with R</h3>
+
+運算子|說明
+--------|--------
+**      |平方
+^	      |次方
++ -	    |取正負 (單元運算)
+%/%	    |整數除法取商
+%%	    |整數除法取餘數
+* / + - |四則運算
+%*%	    |矩陣乘法
+
+
+四捨五入 `round()`  
+無條件捨去 `floor()`  
+無條件進位 `ceiling()`  
+
+>**Some examples**
+
+```{r}
+# ^代表次方
+3^4 
+#compute the remainder after division of 31 by 7, i.e. 31 (mod 7):
+31 %% 7
+#the integer part of a fraction
+31 %/% 7
+#basic calculation
+7 * 4 + 3
+
+```
+
+
+
+<h3 id="43">if、else</h3>
+
+>`if`與`else`下方的程式碼必須要使用`{}`將程式碼包起來  
+>若程式碼只有一行，可省略`{}`，但為閱讀方便，建議不要省略`{}`。  
+
+```{r}
+#舉例：若考試分數大於等於60分，則印出及格字樣，小於60分則印出不及格字樣。
+score<-59
+if(score>=60){
+  print("及格")
+}else{
+  print("不及格")
+}
+
+#使用多重邏輯時，會在if和else間新增邏輯區段else if。
+#if-else if-else敘述是有順序的
+#若在if敘述判斷為真，就算後方else if判斷也為真，也只會執行if區段的程式碼，
+#如範例，95分大於等於90分(if邏輯)，也大於等於60分(else if邏輯)，但最後只印出優秀字樣。
+score<-95
+if(score>=90){
+  print("優秀")
+}else if(score>=60){
+  print("及格")
+}else{
+  print("不及格")
+}
+
+```
+
+>**巢狀`if`**  
+>巢狀if是指在if區段程式碼內包含其他`if-else`判斷，  
+>舉例來說，若國文分數與英文分數皆大於等於60分，印出全部及格  
+>國文分數大於等於60分，英文小於60分，則印國文及格，英文再加油，以此類推，範例如下: 
+
+```{r}
+CHscore<-95 ##國文成績
+ENscore<-55 ##英文成績
+if(CHscore>=60){
+  if(ENscore>=60){
+    print("全部及格")
+  }else{
+    print("國文及格，英文再加油")
+  }
+}else{
+  if(ENscore>=60){
+    print("英文及格，國文再加油")
+  }else{
+    print("全部不及格")
+  }
+}
+```
+
+
+
+<h3 id="44">迴圈</h3>
+
+
+>R語言的`for`迴圈寫法和其他語言不同，  
+>首先必須建立需要逐一執行的參數向量或序列，再使用`for`迴圈逐一執行，  
+>程式寫法為`for` (單一變數 in 參數向量){ 程式碼 }，範例如下:  
+```{r}
+#n為單一變數，1:10為需要逐一執行的參數向量
+for (n in 1:10){
+  print(n)
+}
+```
+
+>while函數則是在每次執行迴圈時檢查`while`邏輯判斷是否為真，  
+>若邏輯判斷為真，就會執行區段程式碼，  
+>若邏輯判斷為偽，則會結束迴圈執行。  
+```{r}
+x<-0
+while(x<=5){
+  print(x)
+  x<-x+1
+}
+```
+
+
+>若遇特殊情形想結束迴圈執行，可使用`break`指令  
+```{r}
+##一執行到5，跳出迴圈，不再執行之後的迴圈
+for(n in 1:10){
+  if(n==5){
+    break 
+  }
+  print(n)
+}
+```
+
+
+<h3 id="45">basic statistic</h3>
+
+```{r}
+x=10:20 #產生10~20的一串數
+mean(x) #算平均數
+var(x)  #算變異數
+sd(x)	#標準差
+sum((x-mean(x))^2)/10 #用數學定義算變異數
+median(x)	#中位數
+range(x)	#全距
+quantile(x)	#四分位數
+IQR(x)	#四分位差
+summary(x)	#描述統計摘要
+```
+
+>**機率部分**
+```{r}
+#以二項分配為例
+dbinom(x = 4, size = 6, prob = 0.5) #機率密度
+pbinom(4, 6, 0.5) #累積機率
+qbinom(0.89, 6, 0.5) #89分位數
+#rbinom(n, size, prob) #隨機數
+```
+
+>**基本統計圖表**
+```{r}
+#直方圖的語法相當簡單:
+#hist(x, …)
+#其中 X 必須是數值資料，因此在 sleep 資料集中，我們可以用「 $ 」符號抽出 extra #這個欄位來繪圖:
+hist(sleep$extra) 
+
+#長條圖，基本語法如下:
+#barplot(height, …)
+#其中 height 必須是向量。我們一樣可以用 sleep 資料集中的 extra #欄位繪圖，用來比較直方圖與長條圖的差異:
+barplot(sleep$extra) 
+
+#圓餅圖基本語法如下:
+#pie(x, labels = names(x), edges =
+#200, radius = 0.8, clockwise = FALSE,
+#init.angle = if (clockwise) 90 else 0, density = NULL, angle = 45,
+#col = NULL, border = NULL, lty = NULL, main = NULL, …)
+#不修改外觀與資料呈現的情況下，只需要指定資料x即可。另外，輸入圓餅圖的資料數值必須是正值
+pie(islands) 
+
+#盒鬚圖的特色是 box 的大小是由四分位數決定，因此透過觀察 box #的形狀，就能大略知道資料的分佈趨勢以及離散程度。
+#它在 R 中的語法也非常簡潔，而且對應到多組變數的資料，還會一次自動產生數組 boxplot :
+#boxplot(x, …)
+boxplot(sleep)
+
+#density 函數本身並不是繪圖函數，而是計算()內資料的「核密度估計( Kernel Density #Estimation )」，如果再把 density() 放入繪圖函數 plot() 中，就可以畫出機率密度函數了。
+#繪製密度圖可以簡易了解資料的機率分佈，
+#這對於選擇合適的統計模型是重要的前置資訊。
+#以sleep資料集裡面的數值資料extra變數為例，繪製機率密度圖如下:
+plot(density(sleep$extra)) 
+
+#散佈圖是一種常用來了解兩個變數之間相關性的圖，它的基本語法如下:
+#qqplot(x, y, plot.it = TRUE, xlab = deparse(substitute(x)), ylab = #deparse(substitute(y)), …)
+#以 sleep 資料集中的 extra 變數與 rivers 資料繪製散佈圖如下:
+qqplot(sleep$extra,rivers)
+
+```
+
+
+<h3 id="46">基本資料視覺化</h3>
+
+**常用函數**
+
+函式     |功能
+---------|---------
+`plot()`	 |繪製散布圖(畫布)
+`lines()`  |把資料點用線連接
+`points()` |繪製新的資料點
+`text()`	 |補充文字說明在圖上
+`title()`	 |補充主旨
+`mtext()`	 |在圖外顯示大主旨
+`axis()`	 |增加軸的labels
+
+>在R裡面繪圖時，可以分成「兩階段」：  
+>1. Creation of a plot)  
+>2. Annotation of a plot: adding lines, points, texts…  
+>示範的程式碼：  
+
+```{r}
+# 建立一個plot，上面已經有一張散布圖(Ozone to Wind)
+plot(x=airquality$Ozone,
+     y=airquality$Wind,
+     main="Ozone to Wind",
+     xlab="Ozone(ppb)",
+     ylab="Wind(mph)",
+     pch=16
+) 
+
+# 把5月的資料點用藍色標註上去
+# pch點的圖形
+# col顏色
+# point 標上藍色的點
+May_data <- airquality[airquality$Month==5, ]
+points(x=May_data$Ozone,                       
+       y=May_data$Wind, 
+       pch=16,                  
+       col="blue")              
+
+# 同理，也可以把8月的資料點用紅色標註上去
+Aug_data <- airquality[airquality$Month==8, ] 
+points(x=Aug_data$Ozone, 
+       y=Aug_data$Wind, 
+       pch=16,               
+       col="red")            
+
+# 在右上角做出標示
+ # topright表示在右上角
+legend("topright",        
+       pch = 1,                                   
+       col = c("blue", "red", "black"),           
+       legend = c("May", "August", "Other Month") 
+       )
+
+# 我們也可以畫出回歸趨勢線
+# abline(lm.model)畫上回歸的趨勢線
+# lwd 代表線的粗細
+# lm()建立一個線性回歸
+lm.model <- lm(Wind~Ozone, airquality)    
+abline(lm.model,                        
+       lwd=2)    
+```
+
+**同時畫兩張圖，這時候可以使用`par()`函式**
+```{r}
+# c(1,2)，表示建立一個1x2的空間，用來呈現後續的圖
+par(mfrow = c(1,2)) 
+# 第一張圖
+plot(airquality$Wind, airquality$Ozone, main = "Wind to Ozone") 
+# 第二張圖
+plot(airquality$Solar.R, airquality$Ozone, main = "Solar.R to Ozone")
+```
